@@ -6,11 +6,8 @@ import {
   Camera,
   ImagePlus,
   Volume2,
-  Sparkles,
   ChevronLeft,
-  ChevronRight,
-  Bot,
-  PartyPopper
+  ChevronRight
 } from "lucide-react";
 
 const alphabetData = [
@@ -46,8 +43,6 @@ export default function HomePage() {
   const [index, setIndex] = useState(0);
   const [kidImage, setKidImage] = useState<string | null>(null);
   const [kidName, setKidName] = useState("");
-  const [grokText, setGrokText] = useState("Click 'Ask Grok' to get a fun lesson! ✨");
-  const [loadingGrok, setLoadingGrok] = useState(false);
   const [autoSpeak, setAutoSpeak] = useState(true);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -99,18 +94,17 @@ export default function HomePage() {
       const timer = setTimeout(() => {
         speakCurrent();
       }, 500);
+
       return () => clearTimeout(timer);
     }
   }, [index, autoSpeak]);
 
   const nextLetter = () => {
     setIndex((prev) => (prev + 1) % alphabetData.length);
-    setGrokText("Click 'Ask Grok' to get a fun lesson! ✨");
   };
 
   const prevLetter = () => {
     setIndex((prev) => (prev - 1 + alphabetData.length) % alphabetData.length);
-    setGrokText("Click 'Ask Grok' to get a fun lesson! ✨");
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -124,56 +118,11 @@ export default function HomePage() {
     reader.readAsDataURL(file);
   };
 
-  const askGrok = async () => {
-    try {
-      setLoadingGrok(true);
-      setGrokText("Grok is thinking... 🤖✨");
-
-      const res = await fetch("/api/grok", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ letter: current.letter, word: current.word })
-      });
-
-      const data = await res.json();
-      const text = data?.text || "Yay! Let's learn together! 🎉";
-      setGrokText(text);
-      speakText(text);
-    } catch {
-      setGrokText("Oops! Grok API not connected. Please add your API key. 🔑");
-    } finally {
-      setLoadingGrok(false);
-    }
-  };
-
   return (
-    <main className="min-h-screen px-4 py-6 md:px-8">
+    <main className="min-h-screen px-4 py-3 md:px-8">
       <div className="mx-auto max-w-6xl">
-        <motion.div
-          initial={{ opacity: 0, y: -25 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-6 rounded-3xl bg-white/80 backdrop-blur-lg shadow-xl border border-white p-5 md:p-6"
-        >
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div>
-              <h1 className="text-3xl md:text-5xl font-extrabold rainbow-text">
-                ABC Learning App
-              </h1>
-              <p className="text-gray-700 mt-2 text-sm md:text-base">
-                Learn letters with fun, voice, Grok AI, kid photo upload, and happy animations!
-              </p>
-            </div>
-            <motion.div
-              animate={{ y: [0, -6, 0] }}
-              transition={{ repeat: Infinity, duration: 2 }}
-              className="text-5xl"
-            >
-              🎈
-            </motion.div>
-          </div>
-        </motion.div>
-
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Side - ABC Card */}
           <div className="lg:col-span-2">
             <motion.div
               layout
@@ -247,15 +196,6 @@ export default function HomePage() {
                 </button>
 
                 <button
-                  onClick={askGrok}
-                  disabled={loadingGrok}
-                  className="flex items-center gap-2 rounded-2xl bg-emerald-500 hover:bg-emerald-600 disabled:opacity-60 text-white px-5 py-3 font-bold shadow-lg"
-                >
-                  <Bot className="w-5 h-5" />
-                  {loadingGrok ? "Loading..." : "Ask Grok"}
-                </button>
-
-                <button
                   onClick={() => setAutoSpeak(!autoSpeak)}
                   className={`rounded-2xl px-5 py-3 font-bold shadow-lg ${
                     autoSpeak ? "bg-pink-500 text-white" : "bg-gray-200 text-gray-700"
@@ -264,22 +204,11 @@ export default function HomePage() {
                   Auto Voice: {autoSpeak ? "ON" : "OFF"}
                 </button>
               </div>
-
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="mt-5 rounded-3xl bg-yellow-50 border-2 border-dashed border-yellow-300 p-4"
-              >
-                <div className="flex items-center gap-2 mb-2">
-                  <Sparkles className="w-5 h-5 text-yellow-500" />
-                  <h3 className="font-bold text-lg text-gray-800">Grok Fun Lesson</h3>
-                </div>
-                <p className="text-gray-700 text-base md:text-lg">{grokText}</p>
-              </motion.div>
             </motion.div>
           </div>
 
-          <div className="space-y-6">
+          {/* Right Side - Kid Profile */}
+          <div>
             <motion.div
               initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
@@ -336,7 +265,11 @@ export default function HomePage() {
                     animate={{ scale: 1, opacity: 1 }}
                     className="rounded-3xl overflow-hidden shadow-lg border-4 border-pink-200 bg-white"
                   >
-                    <img src={kidImage} alt="Kid uploaded" className="w-full h-64 object-cover" />
+                    <img
+                      src={kidImage}
+                      alt="Kid uploaded"
+                      className="w-full h-64 object-cover"
+                    />
                     <div className="p-3 text-center font-bold text-lg text-pink-600">
                       {kidName || "My Little Star ⭐"}
                     </div>
@@ -346,35 +279,6 @@ export default function HomePage() {
                     Upload a kid photo from computer, gallery, or phone camera
                   </div>
                 )}
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 25 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="rounded-3xl bg-white/80 backdrop-blur-lg shadow-xl border border-white p-5"
-            >
-              <div className="flex items-center gap-2 mb-3">
-                <PartyPopper className="w-5 h-5 text-pink-500" />
-                <h3 className="text-xl font-extrabold text-gray-800">All Letters</h3>
-              </div>
-              <div className="grid grid-cols-6 gap-2">
-                {alphabetData.map((item, i) => (
-                  <button
-                    key={item.letter}
-                    onClick={() => {
-                      setIndex(i);
-                      setGrokText("Click 'Ask Grok' to get a fun lesson! ✨");
-                    }}
-                    className={`rounded-xl py-2 font-bold text-lg transition ${
-                      i === index
-                        ? "bg-gradient-to-r from-orange-400 to-pink-400 text-white scale-105"
-                        : "bg-gray-100 hover:bg-gray-200 text-gray-700"
-                    }`}
-                  >
-                    {item.letter}
-                  </button>
-                ))}
               </div>
             </motion.div>
           </div>

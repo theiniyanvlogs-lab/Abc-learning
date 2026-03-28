@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body {
+  padding: 0;
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(180deg, #fff7ed 0%, #ecfeff 50%, #f5f3ff 100%);
+  min-height: 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+}
+
+.rainbow-text {
+  background: linear-gradient(90deg, #f97316, #ec4899, #8b5cf6, #06b6d4, #22c55e);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}

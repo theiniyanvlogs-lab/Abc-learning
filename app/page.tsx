@@ -7,7 +7,9 @@ import {
   ImagePlus,
   Volume2,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Play,
+  Pause
 } from "lucide-react";
 
 const alphabetData = [
@@ -44,6 +46,7 @@ export default function HomePage() {
   const [kidImage, setKidImage] = useState<string | null>(null);
   const [kidName, setKidName] = useState("");
   const [autoSpeak, setAutoSpeak] = useState(true);
+  const [autoPlay, setAutoPlay] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
@@ -98,6 +101,16 @@ export default function HomePage() {
       return () => clearTimeout(timer);
     }
   }, [index, autoSpeak]);
+
+  useEffect(() => {
+    if (!autoPlay) return;
+
+    const timer = setInterval(() => {
+      setIndex((prev) => (prev + 1) % alphabetData.length);
+    }, 3000);
+
+    return () => clearInterval(timer);
+  }, [autoPlay]);
 
   const nextLetter = () => {
     setIndex((prev) => (prev + 1) % alphabetData.length);
@@ -202,6 +215,16 @@ export default function HomePage() {
                   }`}
                 >
                   Auto Voice: {autoSpeak ? "ON" : "OFF"}
+                </button>
+
+                <button
+                  onClick={() => setAutoPlay(!autoPlay)}
+                  className={`flex items-center gap-2 rounded-2xl px-5 py-3 font-bold shadow-lg ${
+                    autoPlay ? "bg-emerald-500 text-white" : "bg-gray-200 text-gray-700"
+                  }`}
+                >
+                  {autoPlay ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+                  {autoPlay ? "Auto Play: ON" : "Auto Play: OFF"}
                 </button>
               </div>
             </motion.div>

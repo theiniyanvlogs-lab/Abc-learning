@@ -9,7 +9,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Play,
-  Pause
+  Pause,
+  RotateCcw
 } from "lucide-react";
 
 const alphabetData = [
@@ -47,11 +48,44 @@ export default function HomePage() {
   const [kidName, setKidName] = useState("");
   const [autoSpeak, setAutoSpeak] = useState(true);
   const [autoPlay, setAutoPlay] = useState(false);
+  const [autoPlaySpeed, setAutoPlaySpeed] = useState(3000); // 2s / 3s / 5s
+  const [loopMode, setLoopMode] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const current = alphabetData[index];
+
+  // Load saved kid data
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const savedKidName = localStorage.getItem("abc_kid_name");
+    const savedKidImage = localStorage.getItem("abc_kid_image");
+
+    if (savedKidName) setKidName(savedKidName);
+    if (savedKidImage) setKidImage(savedKidImage);
+
+    setIsLoaded(true);
+  }, []);
+
+  // Save kid name
+  useEffect(() => {
+    if (!isLoaded) return;
+    localStorage.setItem("abc_kid_name", kidName);
+  }, [kidName, isLoaded]);
+
+  // Save kid image
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    if (kidImage) {
+      localStorage.setItem("abc_kid_image", kidImage);
+    } else {
+      localStorage.removeItem("abc_kid_image");
+    }
+  }, [kidImage, isLoaded]);
 
   const speakText = (text: string) => {
     if (typeof window === "undefined") return;
@@ -61,7 +95,7 @@ export default function HomePage() {
 
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = 0.9;
-    utterance.pitch = 1.2;
+    utterance.pitch = 1.15;
     utterance.volume = 1;
 
     const voices = window.speechSynthesis.getVoices();
@@ -83,6 +117,7 @@ export default function HomePage() {
     speakText(`${current.letter} for ${current.word}. ${current.word}!`);
   };
 
+  // Load voices
   useEffect(() => {
     const loadVoices = () => {
       window.speechSynthesis?.getVoices();
@@ -92,25 +127,37 @@ export default function HomePage() {
     window.speechSynthesis.onvoiceschanged = loadVoices;
   }, []);
 
+  // Auto speak on letter change
   useEffect(() => {
     if (autoSpeak) {
       const timer = setTimeout(() => {
         speakCurrent();
-      }, 500);
+      }, 400);
 
       return () => clearTimeout(timer);
     }
   }, [index, autoSpeak]);
 
+  // Auto play logic
   useEffect(() => {
     if (!autoPlay) return;
 
     const timer = setInterval(() => {
-      setIndex((prev) => (prev + 1) % alphabetData.length);
-    }, 3000);
+      setIndex((prev) => {
+        if (prev >= alphabetData.length - 1) {
+          if (loopMode) {
+            return 0;
+          } else {
+            setAutoPlay(false);
+            return prev;
+          }
+        }
+        return prev + 1;
+      });
+    }, autoPlaySpeed);
 
     return () => clearInterval(timer);
-  }, [autoPlay]);
+  }, [autoPlay, autoPlaySpeed, loopMode]);
 
   const nextLetter = () => {
     setIndex((prev) => (prev + 1) % alphabetData.length);
@@ -131,136 +178,204 @@ export default function HomePage() {
     reader.readAsDataURL(file);
   };
 
+  const clearKidProfile = () => {
+    setKidName("");
+    setKidImage(null);
+    localStorage.removeItem("abc_kid_name");
+    localStorage.removeItem("abc_kid_image");
+  };
+
+  const handleAutoPlayToggle = () => {
+    if (!autoPlay) {
+      setIndex(0); // Start from A
+    }
+    setAutoPlay((prev) => !prev);
+  };
+
   return (
-    <main className="min-h-screen px-4 py-3 md:px-8">
+    <main className="min-h-screen px-2 py-2 md:px-6 bg-gradient-to-b from-cyan-50 via-white to-pink-50">
       <div className="mx-auto max-w-6xl">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Side - ABC Card */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 md:gap-5">
+          {/* ABC Card */}
           <div className="lg:col-span-2">
             <motion.div
               layout
-              className="rounded-3xl bg-white/80 backdrop-blur-lg shadow-2xl border border-white p-4 md:p-8"
+              className="rounded-3xl bg-white/90 backdrop-blur-lg shadow-xl border border-white p-2.5 md:p-5"
             >
-              <div className="flex justify-between items-center mb-4">
+              <div className="flex justify-between items-center mb-2">
                 <button
                   onClick={prevLetter}
-                  className="rounded-2xl bg-orange-100 hover:bg-orange-200 p-3 shadow"
+                  className="rounded-2xl bg-orange-100 hover:bg-orange-200 p-2 shadow"
                 >
-                  <ChevronLeft className="w-6 h-6 text-orange-600" />
+                  <ChevronLeft className="w-4 h-4 md:w-5 md:h-5 text-orange-600" />
                 </button>
 
                 <div className="text-center">
-                  <p className="text-sm text-gray-500">Letter {index + 1} / 26</p>
-                  <p className="text-lg font-bold text-gray-700">Tap and Learn!</p>
+                  <p className="text-[11px] md:text-sm text-gray-500">
+                    Letter {index + 1} / 26
+                  </p>
+                  <p className="text-sm md:text-base font-bold text-gray-700">
+                    Tap and Learn!
+                  </p>
                 </div>
 
                 <button
                   onClick={nextLetter}
-                  className="rounded-2xl bg-cyan-100 hover:bg-cyan-200 p-3 shadow"
+                  className="rounded-2xl bg-cyan-100 hover:bg-cyan-200 p-2 shadow"
                 >
-                  <ChevronRight className="w-6 h-6 text-cyan-600" />
+                  <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-cyan-600" />
                 </button>
               </div>
 
               <AnimatePresence mode="wait">
                 <motion.div
                   key={current.letter}
-                  initial={{ opacity: 0, scale: 0.8, rotate: -8 }}
+                  initial={{ opacity: 0, scale: 0.92, rotate: -3 }}
                   animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                  exit={{ opacity: 0, scale: 0.8, rotate: 8 }}
-                  transition={{ duration: 0.4 }}
-                  className={`rounded-[2rem] bg-gradient-to-br ${current.color} p-6 md:p-10 text-white shadow-xl`}
+                  exit={{ opacity: 0, scale: 0.92, rotate: 3 }}
+                  transition={{ duration: 0.3 }}
+                  className={`rounded-[1.8rem] bg-gradient-to-br ${current.color} px-3 py-4 md:px-6 md:py-6 text-white shadow-lg`}
                 >
                   <div className="text-center">
                     <motion.div
-                      animate={{ y: [0, -10, 0], scale: [1, 1.05, 1] }}
-                      transition={{ repeat: Infinity, duration: 2.2 }}
-                      className="text-[7rem] md:text-[10rem] font-black leading-none drop-shadow-lg"
+                      animate={{ y: [0, -4, 0], scale: [1, 1.02, 1] }}
+                      transition={{ repeat: Infinity, duration: 1.8 }}
+                      className="text-[4rem] md:text-[7rem] font-black leading-none drop-shadow-lg"
                     >
                       {current.letter}
                     </motion.div>
 
                     <motion.div
-                      animate={{ rotate: [0, -4, 4, 0] }}
-                      transition={{ repeat: Infinity, duration: 2.5 }}
-                      className="text-6xl md:text-8xl"
+                      animate={{ rotate: [0, -2, 2, 0] }}
+                      transition={{ repeat: Infinity, duration: 2.2 }}
+                      className="text-3xl md:text-6xl mt-1"
                     >
                       {current.emoji}
                     </motion.div>
 
-                    <p className="mt-4 text-3xl md:text-5xl font-extrabold">
+                    <p className="mt-1.5 text-xl md:text-4xl font-extrabold">
                       {current.word}
                     </p>
 
-                    <p className="mt-2 text-lg md:text-2xl font-semibold">
+                    <p className="mt-1 text-sm md:text-xl font-semibold">
                       {current.letter} for {current.word}
                     </p>
                   </div>
                 </motion.div>
               </AnimatePresence>
 
-              <div className="mt-5 flex flex-wrap gap-3 justify-center">
+              {/* Buttons */}
+              <div className="mt-2.5 grid grid-cols-2 sm:grid-cols-4 gap-2">
                 <button
                   onClick={speakCurrent}
-                  className="flex items-center gap-2 rounded-2xl bg-purple-500 hover:bg-purple-600 text-white px-5 py-3 font-bold shadow-lg"
+                  className="flex items-center justify-center gap-1.5 rounded-2xl bg-purple-500 hover:bg-purple-600 text-white px-2.5 py-2.5 font-bold shadow text-xs md:text-sm"
                 >
-                  <Volume2 className="w-5 h-5" />
+                  <Volume2 className="w-4 h-4" />
                   Speak
                 </button>
 
                 <button
                   onClick={() => setAutoSpeak(!autoSpeak)}
-                  className={`rounded-2xl px-5 py-3 font-bold shadow-lg ${
+                  className={`rounded-2xl px-2.5 py-2.5 font-bold shadow text-xs md:text-sm ${
                     autoSpeak ? "bg-pink-500 text-white" : "bg-gray-200 text-gray-700"
                   }`}
                 >
-                  Auto Voice: {autoSpeak ? "ON" : "OFF"}
+                  Voice {autoSpeak ? "ON" : "OFF"}
                 </button>
 
                 <button
-                  onClick={() => setAutoPlay(!autoPlay)}
-                  className={`flex items-center gap-2 rounded-2xl px-5 py-3 font-bold shadow-lg ${
-                    autoPlay ? "bg-emerald-500 text-white" : "bg-gray-200 text-gray-700"
+                  onClick={handleAutoPlayToggle}
+                  className={`flex items-center justify-center gap-1.5 rounded-2xl px-2.5 py-2.5 font-bold shadow text-xs md:text-sm ${
+                    autoPlay ? "bg-blue-500 text-white" : "bg-blue-100 text-blue-700"
                   }`}
                 >
-                  {autoPlay ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
-                  {autoPlay ? "Auto Play: ON" : "Auto Play: OFF"}
+                  {autoPlay ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                  {autoPlay ? "Playing" : "Auto Play"}
+                </button>
+
+                <button
+                  onClick={() => {
+                    setIndex(0);
+                    setAutoPlay(false);
+                  }}
+                  className="flex items-center justify-center gap-1.5 rounded-2xl bg-gray-100 hover:bg-gray-200 text-gray-700 px-2.5 py-2.5 font-bold shadow text-xs md:text-sm"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  Reset A
+                </button>
+              </div>
+
+              {/* Speed + Loop */}
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                <div className="rounded-2xl bg-white border border-gray-200 px-3 py-2 shadow-sm">
+                  <p className="text-[10px] md:text-xs font-bold text-gray-500 mb-1">
+                    Speed
+                  </p>
+                  <select
+                    value={autoPlaySpeed}
+                    onChange={(e) => setAutoPlaySpeed(Number(e.target.value))}
+                    className="w-full bg-transparent outline-none text-xs md:text-sm font-bold text-gray-700"
+                  >
+                    <option value={2000}>2 sec</option>
+                    <option value={3000}>3 sec</option>
+                    <option value={5000}>5 sec</option>
+                  </select>
+                </div>
+
+                <button
+                  onClick={() => setLoopMode(!loopMode)}
+                  className={`rounded-2xl px-3 py-2 font-bold shadow text-xs md:text-sm ${
+                    loopMode ? "bg-emerald-500 text-white" : "bg-emerald-100 text-emerald-700"
+                  }`}
+                >
+                  Loop {loopMode ? "ON" : "OFF"}
                 </button>
               </div>
             </motion.div>
           </div>
 
-          {/* Right Side - Kid Profile */}
+          {/* Kid Profile */}
           <div>
             <motion.div
-              initial={{ opacity: 0, x: 30 }}
+              initial={{ opacity: 0, x: 15 }}
               animate={{ opacity: 1, x: 0 }}
-              className="rounded-3xl bg-white/80 backdrop-blur-lg shadow-xl border border-white p-5"
+              className="rounded-3xl bg-white/90 backdrop-blur-lg shadow-xl border border-white p-2.5 md:p-4"
             >
-              <h2 className="text-2xl font-extrabold text-gray-800 mb-4">Kid Profile 📸</h2>
+              <div className="flex items-center justify-between mb-2">
+                <h2 className="text-base md:text-xl font-extrabold text-gray-800">
+                  Kid Profile 📸
+                </h2>
+
+                <button
+                  onClick={clearKidProfile}
+                  className="rounded-xl bg-red-100 hover:bg-red-200 text-red-600 px-2 py-1 text-[10px] md:text-xs font-bold"
+                >
+                  Clear
+                </button>
+              </div>
 
               <input
                 value={kidName}
                 onChange={(e) => setKidName(e.target.value)}
                 placeholder="Enter kid name"
-                className="w-full mb-3 rounded-2xl border border-gray-200 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-300"
+                className="w-full mb-2 rounded-2xl border border-gray-200 px-3 py-2 outline-none focus:ring-2 focus:ring-pink-300 text-xs md:text-sm"
               />
 
-              <div className="flex flex-col gap-3">
+              <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center justify-center gap-2 rounded-2xl bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 font-bold"
+                  className="flex items-center justify-center gap-1.5 rounded-2xl bg-blue-500 hover:bg-blue-600 text-white px-2 py-2.5 font-bold text-[11px] md:text-sm"
                 >
-                  <ImagePlus className="w-5 h-5" />
-                  Upload from Computer / Gallery
+                  <ImagePlus className="w-4 h-4" />
+                  Upload
                 </button>
 
                 <button
                   onClick={() => cameraInputRef.current?.click()}
-                  className="flex items-center justify-center gap-2 rounded-2xl bg-rose-500 hover:bg-rose-600 text-white px-4 py-3 font-bold"
+                  className="flex items-center justify-center gap-1.5 rounded-2xl bg-rose-500 hover:bg-rose-600 text-white px-2 py-2.5 font-bold text-[11px] md:text-sm"
                 >
-                  <Camera className="w-5 h-5" />
-                  Open Phone Camera
+                  <Camera className="w-4 h-4" />
+                  Camera
                 </button>
 
                 <input
@@ -281,25 +396,25 @@ export default function HomePage() {
                 />
               </div>
 
-              <div className="mt-5">
+              <div className="mt-2">
                 {kidImage ? (
                   <motion.div
-                    initial={{ scale: 0.8, opacity: 0 }}
+                    initial={{ scale: 0.96, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     className="rounded-3xl overflow-hidden shadow-lg border-4 border-pink-200 bg-white"
                   >
                     <img
                       src={kidImage}
                       alt="Kid uploaded"
-                      className="w-full h-64 object-cover"
+                      className="w-full h-28 sm:h-32 md:h-52 object-cover"
                     />
-                    <div className="p-3 text-center font-bold text-lg text-pink-600">
+                    <div className="p-2 text-center font-bold text-xs md:text-base text-pink-600">
                       {kidName || "My Little Star ⭐"}
                     </div>
                   </motion.div>
                 ) : (
-                  <div className="rounded-3xl border-2 border-dashed border-gray-300 h-72 flex items-center justify-center text-center text-gray-500 p-4">
-                    Upload a kid photo from computer, gallery, or phone camera
+                  <div className="rounded-3xl border-2 border-dashed border-gray-300 h-24 sm:h-28 md:h-52 flex items-center justify-center text-center text-gray-500 p-2 text-[11px] md:text-sm">
+                    Kid photo will show here
                   </div>
                 )}
               </div>

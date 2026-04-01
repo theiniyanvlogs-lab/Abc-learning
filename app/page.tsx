@@ -8,8 +8,7 @@ import {
   ChevronRight,
   Play,
   Pause,
-  RotateCcw,
-  Sparkles
+  RotateCcw
 } from "lucide-react";
 
 const alphabetData = [
@@ -142,11 +141,6 @@ export default function HomePage() {
 
   const prevLetter = () => {
     setIndex((prev) => (prev - 1 + alphabetData.length) % alphabetData.length);
-  };
-
-  const clearKidProfile = () => {
-    setKidName("");
-    localStorage.removeItem("abc_kid_name");
   };
 
   const handleAutoPlayToggle = () => {
@@ -300,47 +294,28 @@ export default function HomePage() {
             </motion.div>
           </div>
 
-          {/* PRO KID PROFILE */}
+          {/* CLEAN PROFILE CARD */}
           <div className="lg:sticky lg:top-4">
             <motion.div
               initial={{ opacity: 0, x: 15 }}
               animate={{ opacity: 1, x: 0 }}
               className="rounded-3xl bg-white/90 backdrop-blur-lg shadow-xl border border-white p-3 md:p-4 overflow-hidden"
             >
-              {/* Header */}
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-pink-100 to-cyan-100 flex items-center justify-center shadow-sm">
-                    <Sparkles className="w-4 h-4 text-pink-500" />
-                  </div>
-                  <h2 className="text-lg md:text-2xl font-extrabold text-gray-800">
-                    Kid Profile
-                  </h2>
-                </div>
-
-                <button
-                  onClick={clearKidProfile}
-                  className="rounded-xl bg-red-100 hover:bg-red-200 text-red-600 px-2 py-1 text-[10px] md:text-xs font-bold transition"
-                >
-                  Clear
-                </button>
-              </div>
-
-              {/* Name Input */}
+              {/* Name Input Only */}
               <input
                 value={kidName}
                 onChange={(e) => setKidName(e.target.value)}
                 placeholder="Enter kid name"
-                className="w-full mb-4 rounded-2xl border border-gray-200 px-3 py-2.5 outline-none focus:ring-2 focus:ring-pink-300 text-sm"
+                className="w-full mb-4 rounded-2xl border border-gray-200 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-300 text-base"
               />
 
-              {/* Decorative Card */}
+              {/* Profile Card */}
               <div className="relative rounded-[2rem] bg-gradient-to-br from-pink-50 via-white to-cyan-50 border border-pink-100 p-4 shadow-inner">
-                {/* Floating Dots */}
-                <div className="absolute top-3 right-4 w-3 h-3 rounded-full bg-pink-200" />
-                <div className="absolute bottom-5 left-4 w-2 h-2 rounded-full bg-cyan-200" />
+                {/* Decorative Dots */}
+                <div className="absolute top-4 right-5 w-3 h-3 rounded-full bg-pink-200" />
+                <div className="absolute bottom-6 left-5 w-2.5 h-2.5 rounded-full bg-cyan-200" />
 
-                {/* Circle Photo Frame */}
+                {/* Circle Photo */}
                 <div className="flex justify-center">
                   <div className="relative">
                     <div className="absolute inset-0 rounded-full bg-gradient-to-br from-pink-300 to-cyan-300 blur-md opacity-40 scale-105" />
@@ -367,8 +342,8 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                {/* Cute Subtitle */}
-                <p className="mt-3 text-center text-xs md:text-sm font-semibold text-gray-500">
+                {/* Subtitle */}
+                <p className="mt-4 text-center text-sm md:text-base font-semibold text-gray-500">
                   Smile • Learn • Grow 🌈
                 </p>
               </div>

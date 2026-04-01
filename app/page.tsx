@@ -12,32 +12,32 @@ import {
 } from "lucide-react";
 
 const alphabetData = [
-  { letter: "A", word: "Apple", emoji: "🍎", color: "from-red-400 to-pink-400" },
-  { letter: "B", word: "Ball", emoji: "⚽", color: "from-blue-400 to-cyan-400" },
-  { letter: "C", word: "Cat", emoji: "🐱", color: "from-yellow-400 to-orange-400" },
-  { letter: "D", word: "Dog", emoji: "🐶", color: "from-green-400 to-emerald-400" },
-  { letter: "E", word: "Elephant", emoji: "🐘", color: "from-purple-400 to-pink-400" },
-  { letter: "F", word: "Fish", emoji: "🐟", color: "from-cyan-400 to-blue-400" },
-  { letter: "G", word: "Grapes", emoji: "🍇", color: "from-violet-400 to-fuchsia-400" },
-  { letter: "H", word: "Hat", emoji: "🎩", color: "from-orange-400 to-red-400" },
-  { letter: "I", word: "Ice Cream", emoji: "🍦", color: "from-pink-300 to-purple-300" },
-  { letter: "J", word: "Juice", emoji: "🧃", color: "from-lime-400 to-green-400" },
-  { letter: "K", word: "Kite", emoji: "🪁", color: "from-sky-400 to-indigo-400" },
-  { letter: "L", word: "Lion", emoji: "🦁", color: "from-amber-400 to-orange-500" },
-  { letter: "M", word: "Monkey", emoji: "🐵", color: "from-yellow-500 to-orange-400" },
-  { letter: "N", word: "Nest", emoji: "🪺", color: "from-stone-400 to-yellow-500" },
-  { letter: "O", word: "Orange", emoji: "🍊", color: "from-orange-400 to-amber-400" },
-  { letter: "P", word: "Parrot", emoji: "🦜", color: "from-green-400 to-lime-400" },
-  { letter: "Q", word: "Queen", emoji: "👑", color: "from-yellow-300 to-pink-400" },
-  { letter: "R", word: "Rabbit", emoji: "🐰", color: "from-pink-300 to-fuchsia-400" },
-  { letter: "S", word: "Sun", emoji: "☀️", color: "from-yellow-300 to-orange-400" },
-  { letter: "T", word: "Tiger", emoji: "🐯", color: "from-orange-400 to-red-500" },
-  { letter: "U", word: "Umbrella", emoji: "☂️", color: "from-indigo-400 to-purple-500" },
-  { letter: "V", word: "Van", emoji: "🚐", color: "from-cyan-400 to-sky-500" },
-  { letter: "W", word: "Watch", emoji: "⌚", color: "from-gray-400 to-slate-500" },
-  { letter: "X", word: "Xylophone", emoji: "🎼", color: "from-fuchsia-400 to-purple-500" },
-  { letter: "Y", word: "Yak", emoji: "🐂", color: "from-stone-400 to-zinc-500" },
-  { letter: "Z", word: "Zebra", emoji: "🦓", color: "from-slate-300 to-gray-500" }
+  { letter: "A", word: "Apple", emoji: "🍎", color: "from-red-400 to-pink-400", audio: "/audio/a.mp3" },
+  { letter: "B", word: "Ball", emoji: "⚽", color: "from-blue-400 to-cyan-400", audio: "/audio/b.mp3" },
+  { letter: "C", word: "Cat", emoji: "🐱", color: "from-yellow-400 to-orange-400", audio: "/audio/c.mp3" },
+  { letter: "D", word: "Dog", emoji: "🐶", color: "from-green-400 to-emerald-400", audio: "/audio/d.mp3" },
+  { letter: "E", word: "Elephant", emoji: "🐘", color: "from-purple-400 to-pink-400", audio: "/audio/e.mp3" },
+  { letter: "F", word: "Fish", emoji: "🐟", color: "from-cyan-400 to-blue-400", audio: "/audio/f.mp3" },
+  { letter: "G", word: "Grapes", emoji: "🍇", color: "from-violet-400 to-fuchsia-400", audio: "/audio/g.mp3" },
+  { letter: "H", word: "Hat", emoji: "🎩", color: "from-orange-400 to-red-400", audio: "/audio/h.mp3" },
+  { letter: "I", word: "Ice Cream", emoji: "🍦", color: "from-pink-300 to-purple-300", audio: "/audio/i.mp3" },
+  { letter: "J", word: "Juice", emoji: "🧃", color: "from-lime-400 to-green-400", audio: "/audio/j.mp3" },
+  { letter: "K", word: "Kite", emoji: "🪁", color: "from-sky-400 to-indigo-400", audio: "/audio/k.mp3" },
+  { letter: "L", word: "Lion", emoji: "🦁", color: "from-amber-400 to-orange-500", audio: "/audio/l.mp3" },
+  { letter: "M", word: "Monkey", emoji: "🐵", color: "from-yellow-500 to-orange-400", audio: "/audio/m.mp3" },
+  { letter: "N", word: "Nest", emoji: "🪺", color: "from-stone-400 to-yellow-500", audio: "/audio/n.mp3" },
+  { letter: "O", word: "Orange", emoji: "🍊", color: "from-orange-400 to-amber-400", audio: "/audio/o.mp3" },
+  { letter: "P", word: "Parrot", emoji: "🦜", color: "from-green-400 to-lime-400", audio: "/audio/p.mp3" },
+  { letter: "Q", word: "Queen", emoji: "👑", color: "from-yellow-300 to-pink-400", audio: "/audio/q.mp3" },
+  { letter: "R", word: "Rabbit", emoji: "🐰", color: "from-pink-300 to-fuchsia-400", audio: "/audio/r.mp3" },
+  { letter: "S", word: "Sun", emoji: "☀️", color: "from-yellow-300 to-orange-400", audio: "/audio/s.mp3" },
+  { letter: "T", word: "Tiger", emoji: "🐯", color: "from-orange-400 to-red-500", audio: "/audio/t.mp3" },
+  { letter: "U", word: "Umbrella", emoji: "☂️", color: "from-indigo-400 to-purple-500", audio: "/audio/u.mp3" },
+  { letter: "V", word: "Van", emoji: "🚐", color: "from-cyan-400 to-sky-500", audio: "/audio/v.mp3" },
+  { letter: "W", word: "Watch", emoji: "⌚", color: "from-gray-400 to-slate-500", audio: "/audio/w.mp3" },
+  { letter: "X", word: "Xylophone", emoji: "🎼", color: "from-fuchsia-400 to-purple-500", audio: "/audio/x.mp3" },
+  { letter: "Y", word: "Yak", emoji: "🐂", color: "from-stone-400 to-zinc-500", audio: "/audio/y.mp3" },
+  { letter: "Z", word: "Zebra", emoji: "🦓", color: "from-slate-300 to-gray-500", audio: "/audio/z.mp3" }
 ];
 
 export default function HomePage() {
@@ -48,11 +48,10 @@ export default function HomePage() {
   const [autoPlaySpeed, setAutoPlaySpeed] = useState(3000);
   const [loopMode, setLoopMode] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [speechReady, setSpeechReady] = useState(false);
 
   const current = alphabetData[index];
   const defaultKidImage = "/kid-profile.jpg";
-  const voicesRef = useRef<SpeechSynthesisVoice[]>([]);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -73,136 +72,37 @@ export default function HomePage() {
     } catch {}
   }, [kidName, isLoaded]);
 
-  // Android speech unlock on first tap
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (!("speechSynthesis" in window)) return;
-
-    const unlockSpeech = () => {
-      try {
-        const synth = window.speechSynthesis;
-        synth.cancel();
-
-        const testUtter = new SpeechSynthesisUtterance(" ");
-        testUtter.volume = 0;
-        testUtter.rate = 1;
-        testUtter.pitch = 1;
-        synth.speak(testUtter);
-
-        setSpeechReady(true);
-      } catch {
-        setSpeechReady(false);
-      }
-    };
-
-    window.addEventListener("click", unlockSpeech, { once: true });
-    window.addEventListener("touchstart", unlockSpeech, { once: true });
-
-    return () => {
-      window.removeEventListener("click", unlockSpeech);
-      window.removeEventListener("touchstart", unlockSpeech);
-    };
-  }, []);
-
-  // Load voices safely for Android/WebView
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (!("speechSynthesis" in window)) return;
-
-    const synth = window.speechSynthesis;
-
-    const loadVoices = () => {
-      try {
-        const voices = synth.getVoices();
-        if (voices && voices.length > 0) {
-          voicesRef.current = voices;
-          setSpeechReady(true);
-        }
-      } catch {}
-    };
-
-    loadVoices();
-
-    const t1 = setTimeout(loadVoices, 500);
-    const t2 = setTimeout(loadVoices, 1500);
-    const t3 = setTimeout(loadVoices, 3000);
-
-    if ("onvoiceschanged" in synth) {
-      synth.onvoiceschanged = loadVoices;
+  const stopAudio = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
     }
-
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-      clearTimeout(t3);
-      if ("onvoiceschanged" in synth) {
-        synth.onvoiceschanged = null;
-      }
-    };
-  }, []);
-
-  const getBestVoice = () => {
-    const voices = voicesRef.current;
-
-    if (!voices || voices.length === 0) return null;
-
-    return (
-      voices.find(
-        (v) =>
-          v.lang?.toLowerCase().includes("en") &&
-          /female|samantha|zira|google us english|google uk english female/i.test(v.name)
-      ) ||
-      voices.find((v) => v.lang?.toLowerCase().includes("en-in")) ||
-      voices.find((v) => v.lang?.toLowerCase().includes("en-us")) ||
-      voices.find((v) => v.lang?.toLowerCase().includes("en-gb")) ||
-      voices.find((v) => v.lang?.toLowerCase().includes("en")) ||
-      voices[0]
-    );
   };
 
-  const speakText = (text: string) => {
-    if (typeof window === "undefined") return;
-    if (!("speechSynthesis" in window)) return;
-
+  const playCurrentAudio = async () => {
     try {
-      const synth = window.speechSynthesis;
-      synth.cancel();
+      stopAudio();
 
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 0.85;
-      utterance.pitch = 1.05;
-      utterance.volume = 1;
-      utterance.lang = "en-US";
+      const audio = new Audio(current.audio);
+      audio.preload = "auto";
+      audio.volume = 1;
+      audioRef.current = audio;
 
-      const bestVoice = getBestVoice();
-      if (bestVoice) {
-        utterance.voice = bestVoice;
-        utterance.lang = bestVoice.lang || "en-US";
-      }
-
-      // Android WebView sometimes needs small delay
-      setTimeout(() => {
-        try {
-          synth.speak(utterance);
-        } catch {}
-      }, 120);
-    } catch {}
-  };
-
-  const speakCurrent = () => {
-    speakText(`${current.letter}. ${current.letter} for ${current.word}. ${current.word}`);
+      await audio.play();
+    } catch (error) {
+      console.error("Audio play failed:", error);
+    }
   };
 
   useEffect(() => {
     if (!autoSpeak) return;
-    if (!speechReady) return;
 
     const timer = setTimeout(() => {
-      speakCurrent();
-    }, 500);
+      playCurrentAudio();
+    }, 300);
 
     return () => clearTimeout(timer);
-  }, [index, autoSpeak, speechReady]);
+  }, [index, autoSpeak]);
 
   useEffect(() => {
     if (!autoPlay) return;
@@ -224,6 +124,12 @@ export default function HomePage() {
     return () => clearInterval(timer);
   }, [autoPlay, autoPlaySpeed, loopMode]);
 
+  useEffect(() => {
+    return () => {
+      stopAudio();
+    };
+  }, []);
+
   const nextLetter = () => {
     setIndex((prev) => (prev + 1) % alphabetData.length);
   };
@@ -236,10 +142,16 @@ export default function HomePage() {
     if (!autoPlay) {
       setIndex(0);
       setTimeout(() => {
-        if (autoSpeak) speakCurrent();
+        if (autoSpeak) playCurrentAudio();
       }, 300);
     }
     setAutoPlay((prev) => !prev);
+  };
+
+  const handleReset = () => {
+    stopAudio();
+    setIndex(0);
+    setAutoPlay(false);
   };
 
   return (
@@ -252,6 +164,7 @@ export default function HomePage() {
               layout
               className="rounded-3xl bg-white/90 backdrop-blur-lg shadow-xl border border-white p-3 md:p-5"
             >
+              {/* Top Nav */}
               <div className="flex justify-between items-center mb-3">
                 <button
                   onClick={prevLetter}
@@ -277,6 +190,7 @@ export default function HomePage() {
                 </button>
               </div>
 
+              {/* Letter Card */}
               <AnimatePresence mode="wait">
                 <motion.div
                   key={current.letter}
@@ -314,9 +228,10 @@ export default function HomePage() {
                 </motion.div>
               </AnimatePresence>
 
+              {/* Controls */}
               <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2">
                 <button
-                  onClick={speakCurrent}
+                  onClick={playCurrentAudio}
                   className="flex items-center justify-center gap-1.5 rounded-2xl bg-purple-500 hover:bg-purple-600 text-white px-2.5 py-2 font-bold shadow text-xs md:text-sm transition"
                 >
                   <Volume2 className="w-4 h-4" />
@@ -343,10 +258,7 @@ export default function HomePage() {
                 </button>
 
                 <button
-                  onClick={() => {
-                    setIndex(0);
-                    setAutoPlay(false);
-                  }}
+                  onClick={handleReset}
                   className="flex items-center justify-center gap-1.5 rounded-2xl bg-gray-100 hover:bg-gray-200 text-gray-700 px-2.5 py-2 font-bold shadow text-xs md:text-sm transition"
                 >
                   <RotateCcw className="w-4 h-4" />
@@ -354,6 +266,7 @@ export default function HomePage() {
                 </button>
               </div>
 
+              {/* Speed + Loop */}
               <div className="mt-2 grid grid-cols-2 gap-2">
                 <div className="rounded-2xl bg-white border border-gray-200 px-3 py-2 shadow-sm">
                   <p className="text-[10px] md:text-xs font-bold text-gray-500 mb-1">

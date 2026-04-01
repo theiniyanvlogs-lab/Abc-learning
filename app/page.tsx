@@ -55,41 +55,54 @@ export default function HomePage() {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const savedKidName = localStorage.getItem("abc_kid_name");
-    if (savedKidName) setKidName(savedKidName);
+    try {
+      const savedKidName = localStorage.getItem("abc_kid_name");
+      if (savedKidName) setKidName(savedKidName);
+    } catch (error) {
+      console.error("LocalStorage load error:", error);
+    }
 
     setIsLoaded(true);
   }, []);
 
   useEffect(() => {
-    if (!isLoaded) return;
-    localStorage.setItem("abc_kid_name", kidName);
+    if (!isLoaded || typeof window === "undefined") return;
+
+    try {
+      localStorage.setItem("abc_kid_name", kidName);
+    } catch (error) {
+      console.error("LocalStorage save error:", error);
+    }
   }, [kidName, isLoaded]);
 
   const speakText = (text: string) => {
     if (typeof window === "undefined") return;
     if (!("speechSynthesis" in window)) return;
 
-    window.speechSynthesis.cancel();
+    try {
+      window.speechSynthesis.cancel();
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 0.9;
-    utterance.pitch = 1.15;
-    utterance.volume = 1;
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 0.9;
+      utterance.pitch = 1.15;
+      utterance.volume = 1;
 
-    const voices = window.speechSynthesis.getVoices();
-    const englishVoice =
-      voices.find(
-        (v) =>
-          v.lang.toLowerCase().includes("en") &&
-          /female|zira|samantha|google us english/i.test(v.name)
-      ) ||
-      voices.find((v) => v.lang.toLowerCase().includes("en")) ||
-      voices[0];
+      const voices = window.speechSynthesis.getVoices();
+      const englishVoice =
+        voices.find(
+          (v) =>
+            v.lang?.toLowerCase().includes("en") &&
+            /female|zira|samantha|google us english/i.test(v.name)
+        ) ||
+        voices.find((v) => v.lang?.toLowerCase().includes("en")) ||
+        voices[0];
 
-    if (englishVoice) utterance.voice = englishVoice;
+      if (englishVoice) utterance.voice = englishVoice;
 
-    window.speechSynthesis.speak(utterance);
+      window.speechSynthesis.speak(utterance);
+    } catch (error) {
+      console.error("Speech error:", error);
+    }
   };
 
   const speakCurrent = () => {
@@ -97,22 +110,40 @@ export default function HomePage() {
   };
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!("speechSynthesis" in window)) return;
+
+    const synth = window.speechSynthesis;
+
     const loadVoices = () => {
-      window.speechSynthesis?.getVoices();
+      try {
+        synth.getVoices();
+      } catch (error) {
+        console.error("Voice load error:", error);
+      }
     };
 
     loadVoices();
-    window.speechSynthesis.onvoiceschanged = loadVoices;
+
+    if ("onvoiceschanged" in synth) {
+      synth.onvoiceschanged = loadVoices;
+    }
+
+    return () => {
+      if ("onvoiceschanged" in synth) {
+        synth.onvoiceschanged = null;
+      }
+    };
   }, []);
 
   useEffect(() => {
-    if (autoSpeak) {
-      const timer = setTimeout(() => {
-        speakCurrent();
-      }, 400);
+    if (!autoSpeak) return;
 
-      return () => clearTimeout(timer);
-    }
+    const timer = setTimeout(() => {
+      speakCurrent();
+    }, 400);
+
+    return () => clearTimeout(timer);
   }, [index, autoSpeak]);
 
   useEffect(() => {
@@ -160,7 +191,6 @@ export default function HomePage() {
               layout
               className="rounded-3xl bg-white/90 backdrop-blur-lg shadow-xl border border-white p-3 md:p-5"
             >
-              {/* Top Nav */}
               <div className="flex justify-between items-center mb-3">
                 <button
                   onClick={prevLetter}
@@ -186,7 +216,6 @@ export default function HomePage() {
                 </button>
               </div>
 
-              {/* Letter Card */}
               <AnimatePresence mode="wait">
                 <motion.div
                   key={current.letter}
@@ -224,7 +253,6 @@ export default function HomePage() {
                 </motion.div>
               </AnimatePresence>
 
-              {/* Controls */}
               <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2">
                 <button
                   onClick={speakCurrent}
@@ -265,7 +293,6 @@ export default function HomePage() {
                 </button>
               </div>
 
-              {/* Speed + Loop */}
               <div className="mt-2 grid grid-cols-2 gap-2">
                 <div className="rounded-2xl bg-white border border-gray-200 px-3 py-2 shadow-sm">
                   <p className="text-[10px] md:text-xs font-bold text-gray-500 mb-1">
@@ -301,7 +328,6 @@ export default function HomePage() {
               animate={{ opacity: 1, x: 0 }}
               className="rounded-3xl bg-white/90 backdrop-blur-lg shadow-xl border border-white p-3 md:p-4 overflow-hidden"
             >
-              {/* Name Input Only */}
               <input
                 value={kidName}
                 onChange={(e) => setKidName(e.target.value)}
@@ -309,13 +335,10 @@ export default function HomePage() {
                 className="w-full mb-4 rounded-2xl border border-gray-200 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-300 text-base"
               />
 
-              {/* Profile Card */}
               <div className="relative rounded-[2rem] bg-gradient-to-br from-pink-50 via-white to-cyan-50 border border-pink-100 p-4 shadow-inner">
-                {/* Decorative Dots */}
                 <div className="absolute top-4 right-5 w-3 h-3 rounded-full bg-pink-200" />
                 <div className="absolute bottom-6 left-5 w-2.5 h-2.5 rounded-full bg-cyan-200" />
 
-                {/* Circle Photo */}
                 <div className="flex justify-center">
                   <div className="relative">
                     <div className="absolute inset-0 rounded-full bg-gradient-to-br from-pink-300 to-cyan-300 blur-md opacity-40 scale-105" />
@@ -331,7 +354,6 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                {/* Name Badge */}
                 <div className="mt-5 flex justify-center">
                   <div className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 shadow-md border border-pink-100">
                     <span className="text-lg">⭐</span>
@@ -342,7 +364,6 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                {/* Subtitle */}
                 <p className="mt-4 text-center text-sm md:text-base font-semibold text-gray-500">
                   Smile • Learn • Grow 🌈
                 </p>

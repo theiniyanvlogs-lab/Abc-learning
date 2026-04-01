@@ -1,10 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Camera,
-  ImagePlus,
   Volume2,
   ChevronLeft,
   ChevronRight,
@@ -44,48 +42,31 @@ const alphabetData = [
 
 export default function HomePage() {
   const [index, setIndex] = useState(0);
-  const [kidImage, setKidImage] = useState<string | null>(null);
   const [kidName, setKidName] = useState("");
   const [autoSpeak, setAutoSpeak] = useState(true);
   const [autoPlay, setAutoPlay] = useState(false);
-  const [autoPlaySpeed, setAutoPlaySpeed] = useState(3000); // 2s / 3s / 5s
+  const [autoPlaySpeed, setAutoPlaySpeed] = useState(3000);
   const [loopMode, setLoopMode] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const cameraInputRef = useRef<HTMLInputElement>(null);
-
   const current = alphabetData[index];
 
-  // Load saved kid data
+  // 👉 Static image from public folder
+  const defaultKidImage = "/kid-profile.jpg";
+
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     const savedKidName = localStorage.getItem("abc_kid_name");
-    const savedKidImage = localStorage.getItem("abc_kid_image");
-
     if (savedKidName) setKidName(savedKidName);
-    if (savedKidImage) setKidImage(savedKidImage);
 
     setIsLoaded(true);
   }, []);
 
-  // Save kid name
   useEffect(() => {
     if (!isLoaded) return;
     localStorage.setItem("abc_kid_name", kidName);
   }, [kidName, isLoaded]);
-
-  // Save kid image
-  useEffect(() => {
-    if (!isLoaded) return;
-
-    if (kidImage) {
-      localStorage.setItem("abc_kid_image", kidImage);
-    } else {
-      localStorage.removeItem("abc_kid_image");
-    }
-  }, [kidImage, isLoaded]);
 
   const speakText = (text: string) => {
     if (typeof window === "undefined") return;
@@ -117,7 +98,6 @@ export default function HomePage() {
     speakText(`${current.letter} for ${current.word}. ${current.word}!`);
   };
 
-  // Load voices
   useEffect(() => {
     const loadVoices = () => {
       window.speechSynthesis?.getVoices();
@@ -127,7 +107,6 @@ export default function HomePage() {
     window.speechSynthesis.onvoiceschanged = loadVoices;
   }, []);
 
-  // Auto speak on letter change
   useEffect(() => {
     if (autoSpeak) {
       const timer = setTimeout(() => {
@@ -138,7 +117,6 @@ export default function HomePage() {
     }
   }, [index, autoSpeak]);
 
-  // Auto play logic
   useEffect(() => {
     if (!autoPlay) return;
 
@@ -167,27 +145,14 @@ export default function HomePage() {
     setIndex((prev) => (prev - 1 + alphabetData.length) % alphabetData.length);
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setKidImage(reader.result as string);
-    };
-    reader.readAsDataURL(file);
-  };
-
   const clearKidProfile = () => {
     setKidName("");
-    setKidImage(null);
     localStorage.removeItem("abc_kid_name");
-    localStorage.removeItem("abc_kid_image");
   };
 
   const handleAutoPlayToggle = () => {
     if (!autoPlay) {
-      setIndex(0); // Start from A
+      setIndex(0);
     }
     setAutoPlay((prev) => !prev);
   };
@@ -268,7 +233,7 @@ export default function HomePage() {
               <div className="mt-2.5 grid grid-cols-2 sm:grid-cols-4 gap-2">
                 <button
                   onClick={speakCurrent}
-                  className="flex items-center justify-center gap-1.5 rounded-2xl bg-purple-500 hover:bg-purple-600 text-white px-2.5 py-2.5 font-bold shadow text-xs md:text-sm"
+                  className="flex items-center justify-center gap-1.5 rounded-2xl bg-purple-500 hover:bg-purple-600 text-white px-2.5 py-2 font-bold shadow text-xs md:text-sm"
                 >
                   <Volume2 className="w-4 h-4" />
                   Speak
@@ -276,7 +241,7 @@ export default function HomePage() {
 
                 <button
                   onClick={() => setAutoSpeak(!autoSpeak)}
-                  className={`rounded-2xl px-2.5 py-2.5 font-bold shadow text-xs md:text-sm ${
+                  className={`rounded-2xl px-2.5 py-2 font-bold shadow text-xs md:text-sm ${
                     autoSpeak ? "bg-pink-500 text-white" : "bg-gray-200 text-gray-700"
                   }`}
                 >
@@ -285,7 +250,7 @@ export default function HomePage() {
 
                 <button
                   onClick={handleAutoPlayToggle}
-                  className={`flex items-center justify-center gap-1.5 rounded-2xl px-2.5 py-2.5 font-bold shadow text-xs md:text-sm ${
+                  className={`flex items-center justify-center gap-1.5 rounded-2xl px-2.5 py-2 font-bold shadow text-xs md:text-sm ${
                     autoPlay ? "bg-blue-500 text-white" : "bg-blue-100 text-blue-700"
                   }`}
                 >
@@ -298,7 +263,7 @@ export default function HomePage() {
                     setIndex(0);
                     setAutoPlay(false);
                   }}
-                  className="flex items-center justify-center gap-1.5 rounded-2xl bg-gray-100 hover:bg-gray-200 text-gray-700 px-2.5 py-2.5 font-bold shadow text-xs md:text-sm"
+                  className="flex items-center justify-center gap-1.5 rounded-2xl bg-gray-100 hover:bg-gray-200 text-gray-700 px-2.5 py-2 font-bold shadow text-xs md:text-sm"
                 >
                   <RotateCcw className="w-4 h-4" />
                   Reset A
@@ -361,62 +326,25 @@ export default function HomePage() {
                 className="w-full mb-2 rounded-2xl border border-gray-200 px-3 py-2 outline-none focus:ring-2 focus:ring-pink-300 text-xs md:text-sm"
               />
 
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center justify-center gap-1.5 rounded-2xl bg-blue-500 hover:bg-blue-600 text-white px-2 py-2.5 font-bold text-[11px] md:text-sm"
-                >
-                  <ImagePlus className="w-4 h-4" />
-                  Upload
-                </button>
-
-                <button
-                  onClick={() => cameraInputRef.current?.click()}
-                  className="flex items-center justify-center gap-1.5 rounded-2xl bg-rose-500 hover:bg-rose-600 text-white px-2 py-2.5 font-bold text-[11px] md:text-sm"
-                >
-                  <Camera className="w-4 h-4" />
-                  Camera
-                </button>
-
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                />
-
-                <input
-                  ref={cameraInputRef}
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                />
-              </div>
-
+              {/* Static Image Only */}
               <div className="mt-2">
-                {kidImage ? (
-                  <motion.div
-                    initial={{ scale: 0.96, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    className="rounded-3xl overflow-hidden shadow-lg border-4 border-pink-200 bg-white"
-                  >
+                <motion.div
+                  initial={{ scale: 0.96, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="rounded-3xl overflow-hidden shadow-lg border-4 border-pink-200 bg-white flex flex-col"
+                >
+                  <div className="w-full h-52 sm:h-56 md:h-64 bg-white flex items-center justify-center p-2">
                     <img
-                      src={kidImage}
-                      alt="Kid uploaded"
-                      className="w-full h-28 sm:h-32 md:h-52 object-cover"
+                      src={defaultKidImage}
+                      alt="Kid profile"
+                      className="max-w-full max-h-full object-contain rounded-2xl"
                     />
-                    <div className="p-2 text-center font-bold text-xs md:text-base text-pink-600">
-                      {kidName || "My Little Star ⭐"}
-                    </div>
-                  </motion.div>
-                ) : (
-                  <div className="rounded-3xl border-2 border-dashed border-gray-300 h-24 sm:h-28 md:h-52 flex items-center justify-center text-center text-gray-500 p-2 text-[11px] md:text-sm">
-                    Kid photo will show here
                   </div>
-                )}
+
+                  <div className="p-2 text-center font-bold text-xs md:text-base text-pink-600">
+                    {kidName || "My Little Star ⭐"}
+                  </div>
+                </motion.div>
               </div>
             </motion.div>
           </div>

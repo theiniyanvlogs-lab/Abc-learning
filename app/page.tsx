@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Volume2,
@@ -48,9 +48,11 @@ export default function HomePage() {
   const [autoPlaySpeed, setAutoPlaySpeed] = useState(3000);
   const [loopMode, setLoopMode] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [speechReady, setSpeechReady] = useState(false);
 
   const current = alphabetData[index];
   const defaultKidImage = "/kid-profile.jpg";
+  const voicesRef = useRef<SpeechSynthesisVoice[]>([]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -58,9 +60,7 @@ export default function HomePage() {
     try {
       const savedKidName = localStorage.getItem("abc_kid_name");
       if (savedKidName) setKidName(savedKidName);
-    } catch (error) {
-      console.error("LocalStorage load error:", error);
-    }
+    } catch {}
 
     setIsLoaded(true);
   }, []);
@@ -70,45 +70,41 @@ export default function HomePage() {
 
     try {
       localStorage.setItem("abc_kid_name", kidName);
-    } catch (error) {
-      console.error("LocalStorage save error:", error);
-    }
+    } catch {}
   }, [kidName, isLoaded]);
 
-  const speakText = (text: string) => {
+  // Android speech unlock on first tap
+  useEffect(() => {
     if (typeof window === "undefined") return;
     if (!("speechSynthesis" in window)) return;
 
-    try {
-      window.speechSynthesis.cancel();
+    const unlockSpeech = () => {
+      try {
+        const synth = window.speechSynthesis;
+        synth.cancel();
 
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 0.9;
-      utterance.pitch = 1.15;
-      utterance.volume = 1;
+        const testUtter = new SpeechSynthesisUtterance(" ");
+        testUtter.volume = 0;
+        testUtter.rate = 1;
+        testUtter.pitch = 1;
+        synth.speak(testUtter);
 
-      const voices = window.speechSynthesis.getVoices();
-      const englishVoice =
-        voices.find(
-          (v) =>
-            v.lang?.toLowerCase().includes("en") &&
-            /female|zira|samantha|google us english/i.test(v.name)
-        ) ||
-        voices.find((v) => v.lang?.toLowerCase().includes("en")) ||
-        voices[0];
+        setSpeechReady(true);
+      } catch {
+        setSpeechReady(false);
+      }
+    };
 
-      if (englishVoice) utterance.voice = englishVoice;
+    window.addEventListener("click", unlockSpeech, { once: true });
+    window.addEventListener("touchstart", unlockSpeech, { once: true });
 
-      window.speechSynthesis.speak(utterance);
-    } catch (error) {
-      console.error("Speech error:", error);
-    }
-  };
+    return () => {
+      window.removeEventListener("click", unlockSpeech);
+      window.removeEventListener("touchstart", unlockSpeech);
+    };
+  }, []);
 
-  const speakCurrent = () => {
-    speakText(`${current.letter} for ${current.word}. ${current.word}!`);
-  };
-
+  // Load voices safely for Android/WebView
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (!("speechSynthesis" in window)) return;
@@ -117,34 +113,96 @@ export default function HomePage() {
 
     const loadVoices = () => {
       try {
-        synth.getVoices();
-      } catch (error) {
-        console.error("Voice load error:", error);
-      }
+        const voices = synth.getVoices();
+        if (voices && voices.length > 0) {
+          voicesRef.current = voices;
+          setSpeechReady(true);
+        }
+      } catch {}
     };
 
     loadVoices();
+
+    const t1 = setTimeout(loadVoices, 500);
+    const t2 = setTimeout(loadVoices, 1500);
+    const t3 = setTimeout(loadVoices, 3000);
 
     if ("onvoiceschanged" in synth) {
       synth.onvoiceschanged = loadVoices;
     }
 
     return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
       if ("onvoiceschanged" in synth) {
         synth.onvoiceschanged = null;
       }
     };
   }, []);
 
+  const getBestVoice = () => {
+    const voices = voicesRef.current;
+
+    if (!voices || voices.length === 0) return null;
+
+    return (
+      voices.find(
+        (v) =>
+          v.lang?.toLowerCase().includes("en") &&
+          /female|samantha|zira|google us english|google uk english female/i.test(v.name)
+      ) ||
+      voices.find((v) => v.lang?.toLowerCase().includes("en-in")) ||
+      voices.find((v) => v.lang?.toLowerCase().includes("en-us")) ||
+      voices.find((v) => v.lang?.toLowerCase().includes("en-gb")) ||
+      voices.find((v) => v.lang?.toLowerCase().includes("en")) ||
+      voices[0]
+    );
+  };
+
+  const speakText = (text: string) => {
+    if (typeof window === "undefined") return;
+    if (!("speechSynthesis" in window)) return;
+
+    try {
+      const synth = window.speechSynthesis;
+      synth.cancel();
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 0.85;
+      utterance.pitch = 1.05;
+      utterance.volume = 1;
+      utterance.lang = "en-US";
+
+      const bestVoice = getBestVoice();
+      if (bestVoice) {
+        utterance.voice = bestVoice;
+        utterance.lang = bestVoice.lang || "en-US";
+      }
+
+      // Android WebView sometimes needs small delay
+      setTimeout(() => {
+        try {
+          synth.speak(utterance);
+        } catch {}
+      }, 120);
+    } catch {}
+  };
+
+  const speakCurrent = () => {
+    speakText(`${current.letter}. ${current.letter} for ${current.word}. ${current.word}`);
+  };
+
   useEffect(() => {
     if (!autoSpeak) return;
+    if (!speechReady) return;
 
     const timer = setTimeout(() => {
       speakCurrent();
-    }, 400);
+    }, 500);
 
     return () => clearTimeout(timer);
-  }, [index, autoSpeak]);
+  }, [index, autoSpeak, speechReady]);
 
   useEffect(() => {
     if (!autoPlay) return;
@@ -177,6 +235,9 @@ export default function HomePage() {
   const handleAutoPlayToggle = () => {
     if (!autoPlay) {
       setIndex(0);
+      setTimeout(() => {
+        if (autoSpeak) speakCurrent();
+      }, 300);
     }
     setAutoPlay((prev) => !prev);
   };

@@ -8,7 +8,8 @@ import {
   ChevronRight,
   Play,
   Pause,
-  RotateCcw
+  RotateCcw,
+  Sparkles
 } from "lucide-react";
 
 const alphabetData = [
@@ -50,8 +51,6 @@ export default function HomePage() {
   const [isLoaded, setIsLoaded] = useState(false);
 
   const current = alphabetData[index];
-
-  // 👉 Static image from public folder
   const defaultKidImage = "/kid-profile.jpg";
 
   useEffect(() => {
@@ -158,19 +157,20 @@ export default function HomePage() {
   };
 
   return (
-    <main className="min-h-screen px-2 py-2 md:px-6 bg-gradient-to-b from-cyan-50 via-white to-pink-50">
-      <div className="mx-auto max-w-6xl">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 md:gap-5">
-          {/* ABC Card */}
+    <main className="min-h-screen bg-gradient-to-b from-cyan-50 via-white to-pink-50 px-2 py-2 md:px-4 lg:px-6">
+      <div className="mx-auto max-w-7xl">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-5 items-start">
+          {/* ABC CARD */}
           <div className="lg:col-span-2">
             <motion.div
               layout
-              className="rounded-3xl bg-white/90 backdrop-blur-lg shadow-xl border border-white p-2.5 md:p-5"
+              className="rounded-3xl bg-white/90 backdrop-blur-lg shadow-xl border border-white p-3 md:p-5"
             >
-              <div className="flex justify-between items-center mb-2">
+              {/* Top Nav */}
+              <div className="flex justify-between items-center mb-3">
                 <button
                   onClick={prevLetter}
-                  className="rounded-2xl bg-orange-100 hover:bg-orange-200 p-2 shadow"
+                  className="rounded-2xl bg-orange-100 hover:bg-orange-200 p-2 shadow transition"
                 >
                   <ChevronLeft className="w-4 h-4 md:w-5 md:h-5 text-orange-600" />
                 </button>
@@ -186,12 +186,13 @@ export default function HomePage() {
 
                 <button
                   onClick={nextLetter}
-                  className="rounded-2xl bg-cyan-100 hover:bg-cyan-200 p-2 shadow"
+                  className="rounded-2xl bg-cyan-100 hover:bg-cyan-200 p-2 shadow transition"
                 >
                   <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-cyan-600" />
                 </button>
               </div>
 
+              {/* Letter Card */}
               <AnimatePresence mode="wait">
                 <motion.div
                   key={current.letter}
@@ -199,7 +200,7 @@ export default function HomePage() {
                   animate={{ opacity: 1, scale: 1, rotate: 0 }}
                   exit={{ opacity: 0, scale: 0.92, rotate: 3 }}
                   transition={{ duration: 0.3 }}
-                  className={`rounded-[1.8rem] bg-gradient-to-br ${current.color} px-3 py-4 md:px-6 md:py-6 text-white shadow-lg`}
+                  className={`rounded-[1.8rem] bg-gradient-to-br ${current.color} px-3 py-5 md:px-6 md:py-8 text-white shadow-lg`}
                 >
                   <div className="text-center">
                     <motion.div
@@ -218,7 +219,7 @@ export default function HomePage() {
                       {current.emoji}
                     </motion.div>
 
-                    <p className="mt-1.5 text-xl md:text-4xl font-extrabold">
+                    <p className="mt-2 text-2xl md:text-4xl font-extrabold">
                       {current.word}
                     </p>
 
@@ -229,11 +230,11 @@ export default function HomePage() {
                 </motion.div>
               </AnimatePresence>
 
-              {/* Buttons */}
-              <div className="mt-2.5 grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {/* Controls */}
+              <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2">
                 <button
                   onClick={speakCurrent}
-                  className="flex items-center justify-center gap-1.5 rounded-2xl bg-purple-500 hover:bg-purple-600 text-white px-2.5 py-2 font-bold shadow text-xs md:text-sm"
+                  className="flex items-center justify-center gap-1.5 rounded-2xl bg-purple-500 hover:bg-purple-600 text-white px-2.5 py-2 font-bold shadow text-xs md:text-sm transition"
                 >
                   <Volume2 className="w-4 h-4" />
                   Speak
@@ -241,7 +242,7 @@ export default function HomePage() {
 
                 <button
                   onClick={() => setAutoSpeak(!autoSpeak)}
-                  className={`rounded-2xl px-2.5 py-2 font-bold shadow text-xs md:text-sm ${
+                  className={`rounded-2xl px-2.5 py-2 font-bold shadow text-xs md:text-sm transition ${
                     autoSpeak ? "bg-pink-500 text-white" : "bg-gray-200 text-gray-700"
                   }`}
                 >
@@ -250,7 +251,7 @@ export default function HomePage() {
 
                 <button
                   onClick={handleAutoPlayToggle}
-                  className={`flex items-center justify-center gap-1.5 rounded-2xl px-2.5 py-2 font-bold shadow text-xs md:text-sm ${
+                  className={`flex items-center justify-center gap-1.5 rounded-2xl px-2.5 py-2 font-bold shadow text-xs md:text-sm transition ${
                     autoPlay ? "bg-blue-500 text-white" : "bg-blue-100 text-blue-700"
                   }`}
                 >
@@ -263,7 +264,7 @@ export default function HomePage() {
                     setIndex(0);
                     setAutoPlay(false);
                   }}
-                  className="flex items-center justify-center gap-1.5 rounded-2xl bg-gray-100 hover:bg-gray-200 text-gray-700 px-2.5 py-2 font-bold shadow text-xs md:text-sm"
+                  className="flex items-center justify-center gap-1.5 rounded-2xl bg-gray-100 hover:bg-gray-200 text-gray-700 px-2.5 py-2 font-bold shadow text-xs md:text-sm transition"
                 >
                   <RotateCcw className="w-4 h-4" />
                   Reset A
@@ -289,7 +290,7 @@ export default function HomePage() {
 
                 <button
                   onClick={() => setLoopMode(!loopMode)}
-                  className={`rounded-2xl px-3 py-2 font-bold shadow text-xs md:text-sm ${
+                  className={`rounded-2xl px-3 py-2 font-bold shadow text-xs md:text-sm transition ${
                     loopMode ? "bg-emerald-500 text-white" : "bg-emerald-100 text-emerald-700"
                   }`}
                 >
@@ -299,52 +300,77 @@ export default function HomePage() {
             </motion.div>
           </div>
 
-          {/* Kid Profile */}
-          <div>
+          {/* PRO KID PROFILE */}
+          <div className="lg:sticky lg:top-4">
             <motion.div
               initial={{ opacity: 0, x: 15 }}
               animate={{ opacity: 1, x: 0 }}
-              className="rounded-3xl bg-white/90 backdrop-blur-lg shadow-xl border border-white p-2.5 md:p-4"
+              className="rounded-3xl bg-white/90 backdrop-blur-lg shadow-xl border border-white p-3 md:p-4 overflow-hidden"
             >
-              <div className="flex items-center justify-between mb-2">
-                <h2 className="text-base md:text-xl font-extrabold text-gray-800">
-                  Kid Profile 📸
-                </h2>
+              {/* Header */}
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-pink-100 to-cyan-100 flex items-center justify-center shadow-sm">
+                    <Sparkles className="w-4 h-4 text-pink-500" />
+                  </div>
+                  <h2 className="text-lg md:text-2xl font-extrabold text-gray-800">
+                    Kid Profile
+                  </h2>
+                </div>
 
                 <button
                   onClick={clearKidProfile}
-                  className="rounded-xl bg-red-100 hover:bg-red-200 text-red-600 px-2 py-1 text-[10px] md:text-xs font-bold"
+                  className="rounded-xl bg-red-100 hover:bg-red-200 text-red-600 px-2 py-1 text-[10px] md:text-xs font-bold transition"
                 >
                   Clear
                 </button>
               </div>
 
+              {/* Name Input */}
               <input
                 value={kidName}
                 onChange={(e) => setKidName(e.target.value)}
                 placeholder="Enter kid name"
-                className="w-full mb-2 rounded-2xl border border-gray-200 px-3 py-2 outline-none focus:ring-2 focus:ring-pink-300 text-xs md:text-sm"
+                className="w-full mb-4 rounded-2xl border border-gray-200 px-3 py-2.5 outline-none focus:ring-2 focus:ring-pink-300 text-sm"
               />
 
-              {/* Static Image Only */}
-              <div className="mt-2">
-                <motion.div
-                  initial={{ scale: 0.96, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  className="rounded-3xl overflow-hidden shadow-lg border-4 border-pink-200 bg-white flex flex-col"
-                >
-                  <div className="w-full h-52 sm:h-56 md:h-64 bg-white flex items-center justify-center p-2">
-                    <img
-                      src={defaultKidImage}
-                      alt="Kid profile"
-                      className="max-w-full max-h-full object-contain rounded-2xl"
-                    />
-                  </div>
+              {/* Decorative Card */}
+              <div className="relative rounded-[2rem] bg-gradient-to-br from-pink-50 via-white to-cyan-50 border border-pink-100 p-4 shadow-inner">
+                {/* Floating Dots */}
+                <div className="absolute top-3 right-4 w-3 h-3 rounded-full bg-pink-200" />
+                <div className="absolute bottom-5 left-4 w-2 h-2 rounded-full bg-cyan-200" />
 
-                  <div className="p-2 text-center font-bold text-xs md:text-base text-pink-600">
-                    {kidName || "My Little Star ⭐"}
+                {/* Circle Photo Frame */}
+                <div className="flex justify-center">
+                  <div className="relative">
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-pink-300 to-cyan-300 blur-md opacity-40 scale-105" />
+                    <div className="relative w-44 h-44 sm:w-52 sm:h-52 md:w-60 md:h-60 rounded-full p-2 bg-gradient-to-br from-pink-300 via-pink-200 to-cyan-200 shadow-lg">
+                      <div className="w-full h-full rounded-full bg-white overflow-hidden flex items-center justify-center">
+                        <img
+                          src={defaultKidImage}
+                          alt="Kid profile"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    </div>
                   </div>
-                </motion.div>
+                </div>
+
+                {/* Name Badge */}
+                <div className="mt-5 flex justify-center">
+                  <div className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 shadow-md border border-pink-100">
+                    <span className="text-lg">⭐</span>
+                    <span className="font-extrabold text-sm md:text-lg text-pink-600">
+                      {kidName || "My Little Star"}
+                    </span>
+                    <span className="text-lg">⭐</span>
+                  </div>
+                </div>
+
+                {/* Cute Subtitle */}
+                <p className="mt-3 text-center text-xs md:text-sm font-semibold text-gray-500">
+                  Smile • Learn • Grow 🌈
+                </p>
               </div>
             </motion.div>
           </div>

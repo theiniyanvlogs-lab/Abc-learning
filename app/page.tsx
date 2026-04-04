@@ -1,348 +1,235 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  Volume2,
   ChevronLeft,
   ChevronRight,
+  Volume2,
   Play,
   Pause,
-  RotateCcw
+  RotateCcw,
+  Repeat,
+  Repeat1,
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
-const alphabetData = [
-  { letter: "A", word: "Apple", emoji: "🍎", color: "from-red-400 to-pink-400", audio: "/audio/a.mp3" },
-  { letter: "B", word: "Ball", emoji: "⚽", color: "from-blue-400 to-cyan-400", audio: "/audio/b.mp3" },
-  { letter: "C", word: "Cat", emoji: "🐱", color: "from-yellow-400 to-orange-400", audio: "/audio/c.mp3" },
-  { letter: "D", word: "Dog", emoji: "🐶", color: "from-green-400 to-emerald-400", audio: "/audio/d.mp3" },
-  { letter: "E", word: "Elephant", emoji: "🐘", color: "from-purple-400 to-pink-400", audio: "/audio/e.mp3" },
-  { letter: "F", word: "Fish", emoji: "🐟", color: "from-cyan-400 to-blue-400", audio: "/audio/f.mp3" },
-  { letter: "G", word: "Grapes", emoji: "🍇", color: "from-violet-400 to-fuchsia-400", audio: "/audio/g.mp3" },
-  { letter: "H", word: "Hat", emoji: "🎩", color: "from-orange-400 to-red-400", audio: "/audio/h.mp3" },
-  { letter: "I", word: "Ice Cream", emoji: "🍦", color: "from-pink-300 to-purple-300", audio: "/audio/i.mp3" },
-  { letter: "J", word: "Juice", emoji: "🧃", color: "from-lime-400 to-green-400", audio: "/audio/j.mp3" },
-  { letter: "K", word: "Kite", emoji: "🪁", color: "from-sky-400 to-indigo-400", audio: "/audio/k.mp3" },
-  { letter: "L", word: "Lion", emoji: "🦁", color: "from-amber-400 to-orange-500", audio: "/audio/l.mp3" },
-  { letter: "M", word: "Monkey", emoji: "🐵", color: "from-yellow-500 to-orange-400", audio: "/audio/m.mp3" },
-  { letter: "N", word: "Nest", emoji: "🪺", color: "from-stone-400 to-yellow-500", audio: "/audio/n.mp3" },
-  { letter: "O", word: "Orange", emoji: "🍊", color: "from-orange-400 to-amber-400", audio: "/audio/o.mp3" },
-  { letter: "P", word: "Parrot", emoji: "🦜", color: "from-green-400 to-lime-400", audio: "/audio/p.mp3" },
-  { letter: "Q", word: "Queen", emoji: "👑", color: "from-yellow-300 to-pink-400", audio: "/audio/q.mp3" },
-  { letter: "R", word: "Rabbit", emoji: "🐰", color: "from-pink-300 to-fuchsia-400", audio: "/audio/r.mp3" },
-  { letter: "S", word: "Sun", emoji: "☀️", color: "from-yellow-300 to-orange-400", audio: "/audio/s.mp3" },
-  { letter: "T", word: "Tiger", emoji: "🐯", color: "from-orange-400 to-red-500", audio: "/audio/t.mp3" },
-  { letter: "U", word: "Umbrella", emoji: "☂️", color: "from-indigo-400 to-purple-500", audio: "/audio/u.mp3" },
-  { letter: "V", word: "Van", emoji: "🚐", color: "from-cyan-400 to-sky-500", audio: "/audio/v.mp3" },
-  { letter: "W", word: "Watch", emoji: "⌚", color: "from-gray-400 to-slate-500", audio: "/audio/w.mp3" },
-  { letter: "X", word: "Xylophone", emoji: "🎼", color: "from-fuchsia-400 to-purple-500", audio: "/audio/x.mp3" },
-  { letter: "Y", word: "Yak", emoji: "🐂", color: "from-stone-400 to-zinc-500", audio: "/audio/y.mp3" },
-  { letter: "Z", word: "Zebra", emoji: "🦓", color: "from-slate-300 to-gray-500", audio: "/audio/z.mp3" }
+const numbers = [
+  { value: 1, emoji: "🍎", title: "One Apple", subtitle: "Number 1" },
+  { value: 2, emoji: "🍎", title: "Two Apples", subtitle: "Number 2" },
+  { value: 3, emoji: "🍎", title: "Three Apples", subtitle: "Number 3" },
+  { value: 4, emoji: "🍎", title: "Four Apples", subtitle: "Number 4" },
+  { value: 5, emoji: "🍎", title: "Five Apples", subtitle: "Number 5" },
+  { value: 6, emoji: "🍎", title: "Six Apples", subtitle: "Number 6" },
+  { value: 7, emoji: "🍎", title: "Seven Apples", subtitle: "Number 7" },
+  { value: 8, emoji: "🍎", title: "Eight Apples", subtitle: "Number 8" },
+  { value: 9, emoji: "🍦", title: "Nine Ice Creams", subtitle: "Number 9" },
+  { value: 10, emoji: "⭐", title: "Ten Stars", subtitle: "Number 10" },
 ];
 
-export default function HomePage() {
-  const [index, setIndex] = useState(0);
-  const [kidName, setKidName] = useState("");
-  const [autoSpeak, setAutoSpeak] = useState(true);
-  const [autoPlay, setAutoPlay] = useState(false);
-  const [autoPlaySpeed, setAutoPlaySpeed] = useState(3000);
-  const [loopMode, setLoopMode] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
+export default function Home() {
+  const [current, setCurrent] = useState(8); // starts at 9
+  const [voiceOn, setVoiceOn] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [loop, setLoop] = useState(false);
+  const [speed, setSpeed] = useState(3000);
+  const [kidName, setKidName] = useState("Naren");
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const current = alphabetData[index];
-  const defaultKidImage = "/kid-profile.jpg";
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const item = useMemo(() => numbers[current], [current]);
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    try {
-      const savedKidName = localStorage.getItem("abc_kid_name");
-      if (savedKidName) setKidName(savedKidName);
-    } catch {}
-
-    setIsLoaded(true);
-  }, []);
-
-  useEffect(() => {
-    if (!isLoaded || typeof window === "undefined") return;
-
-    try {
-      localStorage.setItem("abc_kid_name", kidName);
-    } catch {}
-  }, [kidName, isLoaded]);
-
-  const stopAudio = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-    }
+  const speakText = () => {
+    if (!voiceOn || typeof window === "undefined") return;
+    const utterance = new SpeechSynthesisUtterance(`${item.title}. ${item.subtitle}`);
+    utterance.rate = 0.9;
+    utterance.pitch = 1;
+    utterance.lang = "en-US";
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utterance);
   };
 
-  const playCurrentAudio = async () => {
-    try {
-      stopAudio();
+  const nextItem = () => {
+    setCurrent((prev) => {
+      if (prev < numbers.length - 1) return prev + 1;
+      return loop ? 0 : prev;
+    });
+  };
 
-      const audio = new Audio(current.audio);
-      audio.preload = "auto";
-      audio.volume = 1;
-      audioRef.current = audio;
+  const prevItem = () => {
+    setCurrent((prev) => (prev > 0 ? prev - 1 : 0));
+  };
 
-      await audio.play();
-    } catch (error) {
-      console.error("Audio play failed:", error);
+  const resetToOne = () => {
+    setCurrent(0);
+    setIsPlaying(false);
+    if (typeof window !== "undefined") {
+      window.speechSynthesis.cancel();
     }
   };
 
   useEffect(() => {
-    if (!autoSpeak) return;
-
-    const timer = setTimeout(() => {
-      playCurrentAudio();
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [index, autoSpeak]);
+    speakText();
+  }, [current]);
 
   useEffect(() => {
-    if (!autoPlay) return;
+    if (isPlaying) {
+      timerRef.current = setInterval(() => {
+        setCurrent((prev) => {
+          if (prev < numbers.length - 1) return prev + 1;
+          if (loop) return 0;
+          setIsPlaying(false);
+          return prev;
+        });
+      }, speed);
+    } else {
+      if (timerRef.current) clearInterval(timerRef.current);
+    }
 
-    const timer = setInterval(() => {
-      setIndex((prev) => {
-        if (prev >= alphabetData.length - 1) {
-          if (loopMode) {
-            return 0;
-          } else {
-            setAutoPlay(false);
-            return prev;
-          }
-        }
-        return prev + 1;
-      });
-    }, autoPlaySpeed);
-
-    return () => clearInterval(timer);
-  }, [autoPlay, autoPlaySpeed, loopMode]);
-
-  useEffect(() => {
     return () => {
-      stopAudio();
+      if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, []);
-
-  const nextLetter = () => {
-    setIndex((prev) => (prev + 1) % alphabetData.length);
-  };
-
-  const prevLetter = () => {
-    setIndex((prev) => (prev - 1 + alphabetData.length) % alphabetData.length);
-  };
-
-  const handleAutoPlayToggle = () => {
-    if (!autoPlay) {
-      setIndex(0);
-      setTimeout(() => {
-        if (autoSpeak) playCurrentAudio();
-      }, 300);
-    }
-    setAutoPlay((prev) => !prev);
-  };
-
-  const handleReset = () => {
-    stopAudio();
-    setIndex(0);
-    setAutoPlay(false);
-  };
+  }, [isPlaying, speed, loop]);
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-cyan-50 via-white to-pink-50 px-2 py-2 md:px-4 lg:px-6">
-      <div className="mx-auto max-w-7xl">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-5 items-start">
-          {/* ABC CARD */}
-          <div className="lg:col-span-2">
-            <motion.div
-              layout
-              className="rounded-3xl bg-white/90 backdrop-blur-lg shadow-xl border border-white p-3 md:p-5"
+    <main className="min-h-screen bg-[#eef8fb] px-4 py-5">
+      <div className="mx-auto max-w-md">
+        {/* Main Card */}
+        <div className="rounded-[34px] bg-white/90 p-4 shadow-[0_12px_40px_rgba(0,0,0,0.08)] backdrop-blur-md">
+          {/* Header */}
+          <div className="mb-4 flex items-center justify-between">
+            <button
+              onClick={prevItem}
+              className="flex h-14 w-14 items-center justify-center rounded-full bg-[#f9f0df] shadow-md"
             >
-              {/* Top Nav */}
-              <div className="flex justify-between items-center mb-3">
-                <button
-                  onClick={prevLetter}
-                  className="rounded-2xl bg-orange-100 hover:bg-orange-200 p-2 shadow transition"
-                >
-                  <ChevronLeft className="w-4 h-4 md:w-5 md:h-5 text-orange-600" />
-                </button>
+              <ChevronLeft className="h-7 w-7 text-[#c98c2f]" />
+            </button>
 
-                <div className="text-center">
-                  <p className="text-[11px] md:text-sm text-gray-500">
-                    Letter {index + 1} / 26
-                  </p>
-                  <p className="text-sm md:text-base font-bold text-gray-700">
-                    Tap and Learn!
-                  </p>
-                </div>
+            <div className="text-center">
+              <p className="text-lg font-medium text-slate-500">
+                Number {item.value} / 10
+              </p>
+              <h1 className="text-3xl font-extrabold text-slate-800">
+                Tap and Learn!
+              </h1>
+            </div>
 
-                <button
-                  onClick={nextLetter}
-                  className="rounded-2xl bg-cyan-100 hover:bg-cyan-200 p-2 shadow transition"
-                >
-                  <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-cyan-600" />
-                </button>
-              </div>
-
-              {/* Letter Card */}
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={current.letter}
-                  initial={{ opacity: 0, scale: 0.92, rotate: -3 }}
-                  animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                  exit={{ opacity: 0, scale: 0.92, rotate: 3 }}
-                  transition={{ duration: 0.3 }}
-                  className={`rounded-[1.8rem] bg-gradient-to-br ${current.color} px-3 py-5 md:px-6 md:py-8 text-white shadow-lg`}
-                >
-                  <div className="text-center">
-                    <motion.div
-                      animate={{ y: [0, -4, 0], scale: [1, 1.02, 1] }}
-                      transition={{ repeat: Infinity, duration: 1.8 }}
-                      className="text-[4rem] md:text-[7rem] font-black leading-none drop-shadow-lg"
-                    >
-                      {current.letter}
-                    </motion.div>
-
-                    <motion.div
-                      animate={{ rotate: [0, -2, 2, 0] }}
-                      transition={{ repeat: Infinity, duration: 2.2 }}
-                      className="text-3xl md:text-6xl mt-1"
-                    >
-                      {current.emoji}
-                    </motion.div>
-
-                    <p className="mt-2 text-2xl md:text-4xl font-extrabold">
-                      {current.word}
-                    </p>
-
-                    <p className="mt-1 text-sm md:text-xl font-semibold">
-                      {current.letter} for {current.word}
-                    </p>
-                  </div>
-                </motion.div>
-              </AnimatePresence>
-
-              {/* Controls */}
-              <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2">
-                <button
-                  onClick={playCurrentAudio}
-                  className="flex items-center justify-center gap-1.5 rounded-2xl bg-purple-500 hover:bg-purple-600 text-white px-2.5 py-2 font-bold shadow text-xs md:text-sm transition"
-                >
-                  <Volume2 className="w-4 h-4" />
-                  Speak
-                </button>
-
-                <button
-                  onClick={() => setAutoSpeak(!autoSpeak)}
-                  className={`rounded-2xl px-2.5 py-2 font-bold shadow text-xs md:text-sm transition ${
-                    autoSpeak ? "bg-pink-500 text-white" : "bg-gray-200 text-gray-700"
-                  }`}
-                >
-                  Voice {autoSpeak ? "ON" : "OFF"}
-                </button>
-
-                <button
-                  onClick={handleAutoPlayToggle}
-                  className={`flex items-center justify-center gap-1.5 rounded-2xl px-2.5 py-2 font-bold shadow text-xs md:text-sm transition ${
-                    autoPlay ? "bg-blue-500 text-white" : "bg-blue-100 text-blue-700"
-                  }`}
-                >
-                  {autoPlay ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-                  {autoPlay ? "Playing" : "Auto Play"}
-                </button>
-
-                <button
-                  onClick={handleReset}
-                  className="flex items-center justify-center gap-1.5 rounded-2xl bg-gray-100 hover:bg-gray-200 text-gray-700 px-2.5 py-2 font-bold shadow text-xs md:text-sm transition"
-                >
-                  <RotateCcw className="w-4 h-4" />
-                  Reset A
-                </button>
-              </div>
-
-              {/* Speed + Loop */}
-              <div className="mt-2 grid grid-cols-2 gap-2">
-                <div className="rounded-2xl bg-white border border-gray-200 px-3 py-2 shadow-sm">
-                  <p className="text-[10px] md:text-xs font-bold text-gray-500 mb-1">
-                    Speed
-                  </p>
-                  <select
-                    value={autoPlaySpeed}
-                    onChange={(e) => setAutoPlaySpeed(Number(e.target.value))}
-                    className="w-full bg-transparent outline-none text-xs md:text-sm font-bold text-gray-700"
-                  >
-                    <option value={2000}>2 sec</option>
-                    <option value={3000}>3 sec</option>
-                    <option value={5000}>5 sec</option>
-                  </select>
-                </div>
-
-                <button
-                  onClick={() => setLoopMode(!loopMode)}
-                  className={`rounded-2xl px-3 py-2 font-bold shadow text-xs md:text-sm transition ${
-                    loopMode ? "bg-emerald-500 text-white" : "bg-emerald-100 text-emerald-700"
-                  }`}
-                >
-                  Loop {loopMode ? "ON" : "OFF"}
-                </button>
-              </div>
-            </motion.div>
+            <button
+              onClick={nextItem}
+              className="flex h-14 w-14 items-center justify-center rounded-full bg-[#d8f8ff] shadow-md"
+            >
+              <ChevronRight className="h-7 w-7 text-[#1aa5be]" />
+            </button>
           </div>
 
-          {/* CLEAN PROFILE CARD */}
-          <div className="lg:sticky lg:top-4">
+          {/* Learning Card */}
+          <AnimatePresence mode="wait">
             <motion.div
-              initial={{ opacity: 0, x: 15 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="rounded-3xl bg-white/90 backdrop-blur-lg shadow-xl border border-white p-3 md:p-4 overflow-hidden"
+              key={item.value}
+              initial={{ opacity: 0, y: 18, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -18, scale: 0.96 }}
+              transition={{ duration: 0.3 }}
+              className="rounded-[34px] bg-gradient-to-br from-[#9ee52d] to-[#48db82] px-6 py-8 text-center shadow-[0_10px_30px_rgba(72,219,130,0.25)]"
             >
-              <input
-                value={kidName}
-                onChange={(e) => setKidName(e.target.value)}
-                placeholder="Enter kid name"
-                className="w-full mb-4 rounded-2xl border border-gray-200 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-300 text-base"
-              />
+              <div className="text-8xl font-black text-white drop-shadow-md">
+                {item.value}
+              </div>
 
-              <div className="relative rounded-[2rem] bg-gradient-to-br from-pink-50 via-white to-cyan-50 border border-pink-100 p-4 shadow-inner">
-                <div className="absolute top-4 right-5 w-3 h-3 rounded-full bg-pink-200" />
-                <div className="absolute bottom-6 left-5 w-2.5 h-2.5 rounded-full bg-cyan-200" />
+              <div className="mt-5 text-5xl">{item.emoji}</div>
 
-                <div className="flex justify-center">
-                  <div className="relative">
-                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-pink-300 to-cyan-300 blur-md opacity-40 scale-105" />
-                    <div className="relative w-44 h-44 sm:w-52 sm:h-52 md:w-60 md:h-60 rounded-full p-2 bg-gradient-to-br from-pink-300 via-pink-200 to-cyan-200 shadow-lg">
-                      <div className="w-full h-full rounded-full bg-white overflow-hidden flex items-center justify-center">
-                        <img
-                          src={defaultKidImage}
-                          alt="Kid profile"
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              <h2 className="mt-5 text-4xl font-extrabold text-white drop-shadow-sm">
+                {item.title}
+              </h2>
 
-                <div className="mt-5 flex justify-center">
-                  <div className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 shadow-md border border-pink-100">
-                    <span className="text-lg">⭐</span>
-                    <span className="font-extrabold text-sm md:text-lg text-pink-600">
-                      {kidName || "My Little Star"}
-                    </span>
-                    <span className="text-lg">⭐</span>
-                  </div>
-                </div>
+              <p className="mt-3 text-2xl font-semibold text-white/95">
+                {item.subtitle}
+              </p>
+            </motion.div>
+          </AnimatePresence>
 
-                <p className="mt-4 text-center text-sm md:text-base font-semibold text-gray-500">
-                  Smile • Learn • Grow 🌈
+          {/* Controls Grid */}
+          <div className="mt-5 grid grid-cols-2 gap-4">
+            <button
+              onClick={speakText}
+              className="flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#9d4ef8] to-[#b95ffb] px-4 py-4 text-xl font-bold text-white shadow-lg"
+            >
+              <Volume2 className="h-6 w-6" />
+              Speak
+            </button>
+
+            <button
+              onClick={() => setVoiceOn(!voiceOn)}
+              className="rounded-full bg-gradient-to-r from-[#f04aa5] to-[#e53d93] px-4 py-4 text-xl font-bold text-white shadow-lg"
+            >
+              Voice {voiceOn ? "ON" : "OFF"}
+            </button>
+
+            <button
+              onClick={() => setIsPlaying(!isPlaying)}
+              className="flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#4a83f0] to-[#3a79e8] px-4 py-4 text-xl font-bold text-white shadow-lg"
+            >
+              {isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
+              {isPlaying ? "Playing" : "Play"}
+            </button>
+
+            <button
+              onClick={resetToOne}
+              className="flex items-center justify-center gap-2 rounded-full bg-[#f3f3f7] px-4 py-4 text-xl font-bold text-slate-700 shadow-md"
+            >
+              <RotateCcw className="h-6 w-6" />
+              Reset
+            </button>
+
+            <div className="rounded-[28px] bg-[#f7f7fa] px-5 py-4 shadow-md">
+              <p className="mb-2 text-lg font-semibold text-slate-500">Speed</p>
+              <select
+                value={speed}
+                onChange={(e) => setSpeed(Number(e.target.value))}
+                className="w-full bg-transparent text-2xl font-bold text-slate-700 outline-none"
+              >
+                <option value={3000}>3 sec</option>
+                <option value={5000}>5 sec</option>
+                <option value={7000}>7 sec</option>
+              </select>
+            </div>
+
+            <button
+              onClick={() => setLoop(!loop)}
+              className="flex items-center justify-center gap-2 rounded-[28px] bg-[#d6f3df] px-4 py-4 text-2xl font-bold text-[#0c6b4f] shadow-md"
+            >
+              {loop ? <Repeat1 className="h-6 w-6" /> : <Repeat className="h-6 w-6" />}
+              Loop {loop ? "ON" : "OFF"}
+            </button>
+          </div>
+        </div>
+
+        {/* Kid Name Input */}
+        <div className="mt-6 rounded-[30px] bg-white/80 p-4 shadow-[0_12px_40px_rgba(0,0,0,0.06)]">
+          <input
+            type="text"
+            value={kidName}
+            onChange={(e) => setKidName(e.target.value)}
+            placeholder="Enter kid name"
+            className="w-full rounded-[24px] border-[3px] border-pink-200 px-6 py-5 text-2xl font-medium text-slate-800 outline-none"
+          />
+        </div>
+
+        {/* Kid Profile Card */}
+        <div className="mt-6 rounded-[34px] bg-white/85 p-4 shadow-[0_12px_40px_rgba(0,0,0,0.06)]">
+          <div className="rounded-[30px] bg-gradient-to-br from-pink-50 via-white to-cyan-50 p-6 shadow-inner">
+            <div className="relative mx-auto flex h-64 w-64 items-center justify-center rounded-full bg-gradient-to-r from-pink-200 to-cyan-200 p-3 shadow-lg">
+              <div className="flex h-full w-full items-center justify-center rounded-full bg-white text-[110px]">
+                👶
+              </div>
+              <div className="absolute right-2 top-2 h-5 w-5 rounded-full bg-pink-200" />
+            </div>
+
+            <div className="mt-6 flex justify-center">
+              <div className="rounded-full bg-white px-8 py-4 shadow-lg">
+                <p className="text-2xl font-bold text-pink-600">
+                  ⭐ {kidName || "My Little Star"} ⭐
                 </p>
               </div>
-            </motion.div>
+            </div>
           </div>
         </div>
       </div>
